@@ -1,0 +1,35 @@
+# Blueprint de Render para la API móvil INJUV (código en injuv-backend/).
+services:
+  - type: web
+    name: injuv-mobile-api
+    runtime: docker
+    rootDir: injuv-backend
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    autoDeploy: true
+    # Aplica los scripts SQL idempotentes (no destructivos) antes de cada despliegue.
+    # preDeployCommand requiere un plan de pago; en el plan free ejecuta
+    # `python -m scripts.init_db` manualmente una vez.
+    # preDeployCommand: python -m scripts.init_db
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: DB_SSLMODE
+        value: require
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "10080"
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: PASSWORD_HASH_SCHEME
+        value: werkzeug
+      - key: TIMEZONE
+        value: America/Santiago
+      - key: NOTICIAS_IMAGEN_BASE_URL
+        value: https://plataforma-web-injuv.onrender.com/api/noticias/imagen/
